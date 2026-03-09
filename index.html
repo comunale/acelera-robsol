@@ -3,7 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Acelera Robsol — Cupom</title>
+<title>Acelera Robsol</title>
+
+<!-- PWA: ícone e nome na tela inicial -->
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Acelera Robsol">
+<meta name="theme-color" content="#FF6B00">
+<link rel="apple-touch-icon" id="pwa-icon-link">
+<link rel="manifest" id="pwa-manifest">
+
+<script>
+// Gera o ícone dinamicamente como canvas → base64
+(function() {
+  const size = 512;
+  const c = document.createElement('canvas');
+  c.width = size; c.height = size;
+  const ctx = c.getContext('2d');
+
+  // Fundo preto com cantos arredondados
+  const r = 90;
+  ctx.beginPath();
+  ctx.moveTo(r, 0); ctx.lineTo(size-r, 0);
+  ctx.quadraticCurveTo(size, 0, size, r);
+  ctx.lineTo(size, size-r);
+  ctx.quadraticCurveTo(size, size, size-r, size);
+  ctx.lineTo(r, size);
+  ctx.quadraticCurveTo(0, size, 0, size-r);
+  ctx.lineTo(0, r);
+  ctx.quadraticCurveTo(0, 0, r, 0);
+  ctx.closePath();
+  ctx.fillStyle = '#111111';
+  ctx.fill();
+
+  // Faixa laranja no topo
+  ctx.fillStyle = '#FF6B00';
+  ctx.fillRect(0, 0, size, 14);
+  // Faixa laranja na base
+  ctx.fillRect(0, size-14, size, 14);
+
+  // Texto "AR" grande centralizado
+  ctx.fillStyle = '#FF6B00';
+  ctx.font = 'bold 210px Barlow Condensed, Arial Black, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.letterSpacing = '8px';
+  ctx.fillText('AR', size/2, size/2 - 30);
+
+  // Texto "ROBSOL" menor abaixo
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = 'bold 72px Barlow Condensed, Arial, sans-serif';
+  ctx.fillText('ROBSOL', size/2, size/2 + 110);
+
+  const iconData = c.toDataURL('image/png');
+
+  // Aplica o ícone
+  document.getElementById('pwa-icon-link').href = iconData;
+
+  // Manifesto inline
+  const manifest = {
+    name: 'Acelera Robsol',
+    short_name: 'Acelera',
+    description: 'Emissão de cupons — ExpoOptica 2025',
+    start_url: './',
+    display: 'standalone',
+    background_color: '#0D0D0D',
+    theme_color: '#FF6B00',
+    orientation: 'portrait',
+    icons: [
+      { src: iconData, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
+  document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+})();
+</script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=Barlow:wght@400;500;600&display=swap');
@@ -97,25 +173,25 @@ body { background:var(--preto); color:var(--branco); font-family:'Barlow',sans-s
 .cupom-preview { background:var(--preto-card); border:1px solid var(--cinza-borda); border-radius:12px; padding:18px; margin:18px 0; }
 .cupom-preview-titulo { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:#888; margin-bottom:12px; }
 
-/* CUPOM IMPRIMÍVEL — sem blocos cheios */
-.cupom-imprimivel { background:white; color:black; width:100%; max-width:220px; margin:0 auto; padding:10px 8px; border-radius:4px; font-family:'Courier New',monospace; }
-.cupom-linha-topo { text-align:center; font-size:7px; letter-spacing:1px; color:#333; border-bottom:1px dashed #bbb; padding-bottom:5px; margin-bottom:6px; text-transform:uppercase; }
+/* CUPOM IMPRIMÍVEL — fonte pesada para impressão nítida */
+.cupom-imprimivel { background:white; color:black; width:100%; max-width:220px; margin:0 auto; padding:10px 8px; border-radius:4px; font-family:'Arial Black', 'Arial', sans-serif; }
+.cupom-linha-topo { text-align:center; font-size:8px; letter-spacing:1px; color:#222; border-bottom:1px dashed #999; padding-bottom:5px; margin-bottom:6px; text-transform:uppercase; font-weight:900; }
 .cupom-logo-img { display:block; max-height:28px; max-width:100px; margin:0 auto 2px; object-fit:contain; }
-.cupom-logo-texto { text-align:center; font-family:'Barlow Condensed',sans-serif; font-weight:900; font-size:20px; letter-spacing:2px; color:#000; text-transform:uppercase; line-height:1.1; }
-.cupom-campanha-sub { text-align:center; font-size:7px; color:#555; letter-spacing:1px; margin-bottom:6px; text-transform:uppercase; }
-.cupom-numero-container { text-align:center; border:2px solid #000; border-radius:4px; padding:5px 4px; margin:7px 0; }
-.cupom-numero-label { font-size:6px; letter-spacing:2px; text-transform:uppercase; color:#666; }
-.cupom-numero-valor { font-family:'Barlow Condensed',sans-serif; font-size:22px; font-weight:900; letter-spacing:2px; color:#000; }
-.cupom-divisor { border:none; border-top:1px dashed #ccc; margin:6px 0; }
-.cupom-campo { display:flex; justify-content:space-between; font-size:8px; padding:3px 0; border-bottom:1px solid #f0f0f0; }
-.cupom-campo-label { color:#666; font-weight:bold; text-transform:uppercase; }
-.cupom-campo-valor { color:#000; text-align:right; max-width:120px; word-break:break-word; }
-.cupom-destaque { text-align:center; border:2px solid #333; border-radius:4px; padding:5px; margin:7px 0; font-family:'Barlow Condensed',sans-serif; font-size:13px; font-weight:900; color:#000; letter-spacing:1px; }
-.cupom-assinatura { margin-top:8px; border-top:1px solid #ddd; padding-top:5px; }
-.cupom-assinatura-label { font-size:7px; color:#666; text-transform:uppercase; letter-spacing:1px; }
-.cupom-assinatura-linha { border-bottom:1px solid #333; margin-top:18px; margin-bottom:3px; }
-.cupom-nota { font-size:6px; color:#888; text-align:center; line-height:1.4; margin-top:7px; }
-.cupom-rodape { text-align:center; font-size:6px; color:#333; border-top:1px dashed #ccc; padding-top:5px; margin-top:7px; letter-spacing:1px; text-transform:uppercase; }
+.cupom-logo-texto { text-align:center; font-family:'Barlow Condensed','Arial Black',sans-serif; font-weight:900; font-size:22px; letter-spacing:2px; color:#000; text-transform:uppercase; line-height:1.1; }
+.cupom-campanha-sub { text-align:center; font-size:8px; color:#333; letter-spacing:1px; margin-bottom:6px; text-transform:uppercase; font-weight:700; }
+.cupom-numero-container { text-align:center; border:3px solid #000; border-radius:4px; padding:5px 4px; margin:7px 0; }
+.cupom-numero-label { font-size:7px; letter-spacing:2px; text-transform:uppercase; color:#444; font-weight:900; }
+.cupom-numero-valor { font-family:'Barlow Condensed','Arial Black',sans-serif; font-size:24px; font-weight:900; letter-spacing:2px; color:#000; }
+.cupom-divisor { border:none; border-top:1px dashed #999; margin:6px 0; }
+.cupom-campo { display:flex; justify-content:space-between; font-size:9px; padding:3px 0; border-bottom:1px solid #e8e8e8; }
+.cupom-campo-label { color:#333; font-weight:900; text-transform:uppercase; }
+.cupom-campo-valor { color:#000; font-weight:700; text-align:right; max-width:120px; word-break:break-word; }
+.cupom-destaque { text-align:center; border:3px solid #000; border-radius:4px; padding:5px; margin:7px 0; font-family:'Barlow Condensed','Arial Black',sans-serif; font-size:14px; font-weight:900; color:#000; letter-spacing:1px; }
+.cupom-assinatura { margin-top:8px; border-top:1px solid #ccc; padding-top:5px; }
+.cupom-assinatura-label { font-size:8px; color:#444; text-transform:uppercase; letter-spacing:1px; font-weight:700; }
+.cupom-assinatura-linha { border-bottom:2px solid #000; margin-top:20px; margin-bottom:3px; }
+.cupom-nota { font-size:7px; color:#555; text-align:center; line-height:1.5; margin-top:7px; font-weight:700; }
+.cupom-rodape { text-align:center; font-size:7px; color:#222; border-top:1px dashed #999; padding-top:5px; margin-top:7px; letter-spacing:1px; text-transform:uppercase; font-weight:900; }
 
 /* BOTÕES AÇÃO */
 .acoes { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
@@ -143,43 +219,43 @@ const LOGO_URL = '';
 
 // 3. Lista de representantes — nome e marca que representa
 const REPRESENTANTES = [
-  { nome: 'AMANDA LOPES', marca: 'CV, FOX, FP' },
-  { nome: 'ANTONIO CARLOS', marca: 'SS, RO, CV, FOX' },
-  { nome: 'ANTONIO LOBATO', marca: 'SS, RO, CV, FOX' },
-  { nome: 'AUGUSTO', marca: 'SS, RO, RB' },
-  { nome: 'BRUNO R. MELO', marca: 'SS, RO, RB' },
-  { nome: 'CARLOS A. MORAES', marca: 'SS, RO, JN' },
-  { nome: 'CELSO LIMA', marca: 'JN, RB' },
-  { nome: 'EGIDIO', marca: 'MP' },
-  { nome: 'ELIAS', marca: 'SS, RO, JN' },
-  { nome: 'ENDERSON GONÇALVES TROMBINI', marca: 'JN, RB' },
-  { nome: 'FABIO ANGEL MENDES', marca: 'CV, FOX' },
-  { nome: 'GEORGE', marca: 'DSN, ECKO, FP' },
-  { nome: 'GERALDO', marca: 'DSN, ECKO, FP' },
-  { nome: 'GREGÓRIO', marca: 'SS, RO, JN, RB' },
-  { nome: 'HELIO PINHATA', marca: 'CV, FOX' },
-  { nome: 'IVAN MAGNAVITA', marca: 'SS, RO, CV, FOX' },
-  { nome: 'JEANFER', marca: 'JN, RB' },
-  { nome: 'JOÃO ALEXANDRE', marca: 'SS, RO' },
-  { nome: 'LEANDRO RODRIGUES SANTOS', marca: 'DSN, ECKO, FP' },
-  { nome: 'LUIS MENDES', marca: 'SS, RO' },
-  { nome: 'MARCELO HIRATA', marca: 'CV, FOX' },
-  { nome: 'MARCIO', marca: 'GERENTE' },
-  { nome: 'MARCO AURELIO', marca: 'DSN, ECKO, FP, JN' },
-  { nome: 'MARCOS FELIX', marca: 'DSN, ECKO, FP' },
-  { nome: 'MAURICIO MENEZES', marca: 'DSN, ECKO, FP' },
-  { nome: 'MICHEL CARDOSO', marca: 'SS, RO, ECKO, DSN' },
-  { nome: 'NECÉLIO', marca: 'CV, FOX, RB' },
-  { nome: 'NILSON MOREIRA', marca: 'CV, FOX' },
-  { nome: 'NIVALDO MOREIRA', marca: 'DSN, ECKO, FP' },
-  { nome: 'RENATA CRESPO', marca: 'SS, RO' },
-  { nome: 'RENATO MAGALHÃES', marca: 'SS, RO' },
-  { nome: 'RICARDO GUASTAFERRO', marca: 'SS, RO' },
-  { nome: 'ROBERTO C. ARCHANJO', marca: 'DSN, ECKO, FP' },
-  { nome: 'ROBERTO RODRIGUES', marca: 'JN, RB' },
-  { nome: 'RODRIGO P. FERNANDES', marca: 'JN, RB' },
-  { nome: 'ROMEU', marca: 'CV, FOX' },
-  { nome: 'VICTOR SOUSA', marca: 'JN, FP, ECKO' },
+  { nome: 'AMANDA LOPES',                   marca: 'CV, FOX, FP' },
+  { nome: 'ANTONIO CARLOS',                 marca: 'SS, RO, CV, FOX' },
+  { nome: 'ANTONIO LOBATO',                 marca: 'SS, RO, CV, FOX' },
+  { nome: 'AUGUSTO',                        marca: 'SS, RO, RB' },
+  { nome: 'BRUNO R. MELO',                  marca: 'SS, RO, RB' },
+  { nome: 'CARLOS A. MORAES',               marca: 'SS, RO, JN' },
+  { nome: 'CELSO LIMA',                     marca: 'JN, RB' },
+  { nome: 'EGIDIO',                         marca: 'MP' },
+  { nome: 'ELIAS',                          marca: 'SS, RO, JN' },
+  { nome: 'ENDERSON GONÇALVES TROMBINI',    marca: 'JN, RB' },
+  { nome: 'FABIO ANGEL MENDES',             marca: 'CV, FOX' },
+  { nome: 'GEORGE',                         marca: 'DSN, ECKO, FP' },
+  { nome: 'GERALDO',                        marca: 'DSN, ECKO, FP' },
+  { nome: 'GREGÓRIO',                       marca: 'SS, RO, JN, RB' },
+  { nome: 'HELIO PINHATA',                  marca: 'CV, FOX' },
+  { nome: 'IVAN MAGNAVITA',                 marca: 'SS, RO, CV, FOX' },
+  { nome: 'JEANFER',                        marca: 'JN, RB' },
+  { nome: 'JOÃO ALEXANDRE',                 marca: 'SS, RO' },
+  { nome: 'LEANDRO RODRIGUES SANTOS',       marca: 'DSN, ECKO, FP' },
+  { nome: 'LUIS MENDES',                    marca: 'SS, RO' },
+  { nome: 'MARCELO HIRATA',                 marca: 'CV, FOX' },
+  { nome: 'MARCIO',                         marca: 'GERENTE' },
+  { nome: 'MARCO AURELIO',                  marca: 'DSN, ECKO, FP, JN' },
+  { nome: 'MARCOS FELIX',                   marca: 'DSN, ECKO, FP' },
+  { nome: 'MAURICIO MENEZES',               marca: 'DSN, ECKO, FP' },
+  { nome: 'MICHEL CARDOSO',                 marca: 'SS, RO, ECKO, DSN' },
+  { nome: 'NECÉLIO',                        marca: 'CV, FOX, RB' },
+  { nome: 'NILSON MOREIRA',                 marca: 'CV, FOX' },
+  { nome: 'NIVALDO MOREIRA',                marca: 'DSN, ECKO, FP' },
+  { nome: 'RENATA CRESPO',                  marca: 'SS, RO' },
+  { nome: 'RENATO MAGALHÃES',               marca: 'SS, RO' },
+  { nome: 'RICARDO GUASTAFERRO',            marca: 'SS, RO' },
+  { nome: 'ROBERTO C. ARCHANJO',            marca: 'DSN, ECKO, FP' },
+  { nome: 'ROBERTO RODRIGUES',              marca: 'JN, RB' },
+  { nome: 'RODRIGO P. FERNANDES',           marca: 'JN, RB' },
+  { nome: 'ROMEU',                          marca: 'CV, FOX' },
+  { nome: 'VICTOR SOUSA',                   marca: 'JN, FP, ECKO' },
 ];
 </script>
 
@@ -529,7 +605,7 @@ async function gerarTodosJpegs() {
       await new Promise(r => setTimeout(r, 80));
 
       const canvas = await html2canvas(document.getElementById('cupom-imprimivel'), {
-        scale: 3, backgroundColor: '#ffffff', useCORS: true, logging: false
+        scale: 6, backgroundColor: '#ffffff', useCORS: true, logging: false
       });
       jpegDataUrls.push({ numero: numeros[i], url: canvas.toDataURL('image/jpeg', 0.95) });
     }
