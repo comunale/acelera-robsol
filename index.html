@@ -8,10 +8,93 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Acelera Robsol">
-<meta name="theme-color" content="#83d100">
-<link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="Logo_AceleraRobsol.png">
+<meta name="apple-mobile-web-app-title" content="Acelera">
+<meta name="theme-color" content="#111111">
+<link rel="apple-touch-icon" id="pwa-apple-icon">
+<link rel="manifest" id="pwa-manifest-link">
+
+<script>
+// Gera ícone PWA: fundo preto + cantos arredondados + logo centralizada
+(function() {
+  const SIZE = 512;
+  const PADDING = 80; // espaço ao redor da logo
+  const LOGO_URL = 'https://comunale.github.io/acelera-robsol/Logo_AceleraRobsol.png';
+
+  function desenharIcone(logoImg) {
+    const c = document.createElement('canvas');
+    c.width = SIZE; c.height = SIZE;
+    const ctx = c.getContext('2d');
+
+    // Fundo preto com cantos arredondados (padrão iOS/Android)
+    const r = 110;
+    ctx.beginPath();
+    ctx.moveTo(r, 0); ctx.lineTo(SIZE-r, 0);
+    ctx.quadraticCurveTo(SIZE, 0, SIZE, r);
+    ctx.lineTo(SIZE, SIZE-r);
+    ctx.quadraticCurveTo(SIZE, SIZE, SIZE-r, SIZE);
+    ctx.lineTo(r, SIZE);
+    ctx.quadraticCurveTo(0, SIZE, 0, SIZE-r);
+    ctx.lineTo(0, r);
+    ctx.quadraticCurveTo(0, 0, r, 0);
+    ctx.closePath();
+    ctx.fillStyle = '#111111';
+    ctx.fill();
+
+    if (logoImg) {
+      // Centraliza a logo com padding, mantendo proporção
+      const maxW = SIZE - PADDING * 2;
+      const maxH = SIZE - PADDING * 2;
+      const ratio = Math.min(maxW / logoImg.width, maxH / logoImg.height);
+      const w = logoImg.width * ratio;
+      const h = logoImg.height * ratio;
+      const x = (SIZE - w) / 2;
+      const y = (SIZE - h) / 2;
+      ctx.drawImage(logoImg, x, y, w, h);
+    } else {
+      // Fallback texto se logo não carregar
+      ctx.fillStyle = '#83d100';
+      ctx.font = 'bold 180px Arial Black, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('AR', SIZE/2, SIZE/2 - 20);
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 64px Arial, sans-serif';
+      ctx.fillText('ROBSOL', SIZE/2, SIZE/2 + 110);
+    }
+
+    return c.toDataURL('image/png');
+  }
+
+  function aplicarIcone(dataUrl) {
+    // Apple touch icon
+    document.getElementById('pwa-apple-icon').href = dataUrl;
+
+    // Manifest inline com ícone gerado
+    const manifest = {
+      name: 'Acelera Robsol',
+      short_name: 'Acelera',
+      description: 'Emissão de cupons — ExpoOptica 2025',
+      start_url: './index.html',
+      display: 'standalone',
+      background_color: '#111111',
+      theme_color: '#111111',
+      orientation: 'portrait',
+      icons: [
+        { src: dataUrl, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+      ]
+    };
+    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+    document.getElementById('pwa-manifest-link').href = URL.createObjectURL(blob);
+  }
+
+  // Tenta carregar a logo primeiro
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = function() { aplicarIcone(desenharIcone(img)); };
+  img.onerror = function() { aplicarIcone(desenharIcone(null)); }; // fallback sem logo
+  img.src = LOGO_URL + '?v=' + Date.now(); // evita cache problemático
+})();
+</script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -150,6 +233,11 @@ const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxaO9EswZROD6Ke
 //    Exemplo: 'https://robsol.com.br/logo.png'
 const LOGO_URL = 'https://comunale.github.io/acelera-robsol/Logo_AceleraRobsol.png';
 
+// Logo para o CUPOM IMPRESSO — use uma versão PB (preto e branco)
+// Suba o arquivo no GitHub e cole o link abaixo
+// Deixe igual ao LOGO_URL por enquanto, ou coloque a versão PB quando tiver
+const LOGO_CUPOM_URL = 'https://comunale.github.io/acelera-robsol/Logo_AceleraRobsol_pb.png';
+
 // 3. Lista de representantes — nome e marca que representa
 const REPRESENTANTES = [
   { nome: 'AMANDA LOPES', marca: 'CV, FOX, FP' },
@@ -284,6 +372,7 @@ const REPRESENTANTES = [
     <div class="sucesso-check">✓</div>
     <div class="sucesso-titulo">CUPOM GERADO!</div>
     <div class="sucesso-sub">Dados registrados com sucesso</div>
+    <div id="sucesso-cupons-info" style="margin-top:10px; font-family:'Montserrat',sans-serif; font-size:13px; color:#888;"></div>
   </div>
 
   <div class="cupom-preview">
@@ -353,9 +442,14 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('hero-logo').src = LOGO_URL;
     document.getElementById('hero-logo').style.display = 'block';
     document.getElementById('hero-titulo').style.display = 'none';
-    document.getElementById('cupom-logo-img').src = LOGO_URL;
-    document.getElementById('cupom-logo-img').style.display = 'block';
-    document.getElementById('cupom-logo-texto').style.display = 'none';
+    // Logo do cupom — usa versão PB se disponível
+    if (LOGO_CUPOM_URL) {
+      const imgCupom = document.getElementById('cupom-logo-img');
+      imgCupom.crossOrigin = 'anonymous';
+      imgCupom.src = LOGO_CUPOM_URL;
+      imgCupom.style.display = 'block';
+      document.getElementById('cupom-logo-texto').style.display = 'none';
+    }
   }
   document.addEventListener('click', (e) => {
     if (!document.querySelector('.rep-selector').contains(e.target)) {
@@ -489,6 +583,10 @@ async function enviarFormulario() {
       const qtd = res.cupomNumeros ? res.cupomNumeros.length : 1;
       document.getElementById('btn-gerar-jpeg').textContent =
         qtd === 1 ? '🖨️ GERAR JPEG' : `🖨️ GERAR ${qtd} JPEGS`;
+      document.getElementById('sucesso-cupons-info').textContent =
+        qtd === 1
+          ? `Cupom: ${res.cupomNumeros[0]}`
+          : `${qtd} cupons gerados: ${res.cupomNumeros.join(' · ')}`;
       document.getElementById('tela-loading').style.display = 'none';
       document.getElementById('tela-sucesso').style.display = 'block';
     } else throw new Error(res.erro);
@@ -534,10 +632,12 @@ async function gerarTodosJpegs() {
       preencherCupomComNumero(dadosCupomAtual, numeros[i]);
 
       // Pequena pausa para o DOM atualizar
-      await new Promise(r => setTimeout(r, 80));
+      await new Promise(r => setTimeout(r, 250));
 
       const canvas = await html2canvas(document.getElementById('cupom-imprimivel'), {
-        scale: 6, backgroundColor: '#ffffff', useCORS: true, logging: false
+        scale: 6, backgroundColor: '#ffffff',
+        useCORS: true, allowTaint: true, logging: false,
+        imageTimeout: 3000
       });
       // Converte para preto e branco puro
       const ctx2 = canvas.getContext('2d');
