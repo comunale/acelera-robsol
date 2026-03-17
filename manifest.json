@@ -1,0 +1,18 @@
+{
+  "name": "Acelera Robsol",
+  "short_name": "Acelera",
+  "description": "Emissão de cupons — ExpoOptica 2025",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0D0D0D",
+  "theme_color": "#83d100",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "Logo_AceleraRobsol.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
